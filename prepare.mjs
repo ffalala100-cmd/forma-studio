@@ -13,11 +13,24 @@ const copies = {
   'jszip/dist/jszip.min.js': 'jszip.js',
   'pdfjs-dist/build/pdf.mjs': 'pdf.mjs',
   'pdfjs-dist/build/pdf.worker.mjs': 'pdf.worker.mjs',
+  'pdf-lib/dist/pdf-lib.min.js':'pdf-lib.js',
+  'exceljs/dist/exceljs.min.js':'exceljs.js',
+  'dompurify/dist/purify.min.js':'dompurify.js',
   '@ffmpeg/util/dist/umd/index.js': 'ffmpeg-util.js',
 };
 for (const [from, to] of Object.entries(copies)) copyFileSync(path.join(root, 'node_modules', from), path.join(vendor, to));
 cpSync(path.join(root, 'node_modules/@ffmpeg/ffmpeg/dist/umd'), path.join(vendor, 'ffmpeg'), {recursive:true,filter:p=>!p.endsWith('.map')});
 for (const folder of ['cmaps','standard_fonts','wasm']) cpSync(path.join(root,'node_modules/pdfjs-dist',folder),path.join(vendor,folder),{recursive:true});
+mkdirSync(path.join(vendor,'qpdf'),{recursive:true});
+writeFileSync(path.join(vendor,'qpdf/qpdf.mjs'),readFileSync(path.join(root,'node_modules/@neslinesli93/qpdf-wasm/dist/qpdf.js'),'utf8')+'\nexport default Module;\n');
+copyFileSync(path.join(root,'node_modules/@neslinesli93/qpdf-wasm/dist/qpdf.wasm'),path.join(vendor,'qpdf/qpdf.wasm'));
+mkdirSync(path.join(vendor,'tesseract/core'),{recursive:true});mkdirSync(path.join(vendor,'tesseract/lang'),{recursive:true});
+for(const name of ['tesseract.min.js','worker.min.js'])copyFileSync(path.join(root,'node_modules/tesseract.js/dist',name),path.join(vendor,'tesseract',name));
+for(const name of ['tesseract-core-lstm.wasm.js','tesseract-core-simd-lstm.wasm.js','tesseract-core-relaxedsimd-lstm.wasm.js'])copyFileSync(path.join(root,'node_modules/tesseract.js-core',name),path.join(vendor,'tesseract/core',name));
+for(const lang of ['eng','chi_sim','chi_tra'])copyFileSync(path.join(root,`node_modules/@tesseract.js-data/${lang}/4.0.0_best_int/${lang}.traineddata.gz`),path.join(vendor,`tesseract/lang/${lang}.traineddata.gz`));
+mkdirSync(path.join(vendor,'ghostscript'),{recursive:true});
+for(const name of ['gs.mjs','gs.wasm','gs.js','browser.js'])copyFileSync(path.join(root,'node_modules/@jspawn/ghostscript-wasm',name),path.join(vendor,'ghostscript',name));
+copyFileSync(path.join(root,'assets/srgb.icc'),path.join(vendor,'ghostscript/srgb.icc'));
 const corePath=path.join(root,'node_modules/@ffmpeg/core/dist/umd');
 if(existsSync(corePath)){
   copyFileSync(path.join(corePath,'ffmpeg-core.js'),path.join(vendor,'ffmpeg-core.js'));
@@ -32,7 +45,7 @@ pkg.type='module';
 pkg.scripts={prepare:'node prepare.mjs',start:'node server.mjs',test:'node --test test/*.test.mjs'};
 writeFileSync(path.join(root,'package.json'),JSON.stringify(pkg,null,2)+'\n');
 console.log('Bundled browser conversion libraries.');
-const notices=['Forma third-party software notices','', 'FFmpeg core includes GPL components. Corresponding source and build scripts:','https://github.com/ffmpegwasm/ffmpeg.wasm/tree/main/packages/core','https://github.com/FFmpeg/FFmpeg','https://github.com/ffmpegwasm/ffmpeg.wasm/blob/main/LICENSE',''];
+const notices=['Forma third-party software notices','', 'FFmpeg core includes GPL components. Corresponding source and build scripts:','https://github.com/ffmpegwasm/ffmpeg.wasm/tree/main/packages/core','https://github.com/FFmpeg/FFmpeg','https://github.com/ffmpegwasm/ffmpeg.wasm/blob/main/LICENSE','','Ghostscript WebAssembly is AGPL-3.0. Corresponding source and build scripts:','https://github.com/jsscheller/ghostscript-wasm','https://github.com/ArtifexSoftware/ghostpdl','QPDF browser build source: https://github.com/neslinesli93/qpdf-wasm',''];
 mkdirSync(path.join(vendor,'licenses'),{recursive:true});
 for(const name of Object.keys(pkg.dependencies||{})){
   const dir=path.join(root,'node_modules',name);const dep=JSON.parse(readFileSync(path.join(dir,'package.json'),'utf8'));notices.push(`${name} ${dep.version} — ${dep.license||'See package license'}`);

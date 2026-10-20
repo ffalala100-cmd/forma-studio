@@ -1,0 +1,5 @@
+sRGB ICC profile from Artifex GhostPDL
+https://github.com/ArtifexSoftware/ghostpdl/blob/master/iccprofiles/srgb.icc
+Git blob: 055997234ccb99efe28d61a99f92459a4da3f77d
+SHA-256: eddaf344b5edea13269e0d20055f335610e5e0b6e33e6e536f2701bc18c5f7d5
+Ghostscript is distributed under AGPL-3.0. See vendor licenses.

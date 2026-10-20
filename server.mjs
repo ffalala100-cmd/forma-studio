@@ -9,7 +9,7 @@ const server=createServer((req,res)=>{
   const pathname=new URL(req.url,'http://localhost').pathname;
   if(prefix&&!pathname.startsWith(prefix+'/')){res.writeHead(404);res.end('Not found');return;}
   const qaPath=prefix?pathname.slice(prefix.length):pathname;
-  if(qaPath.startsWith('/__qa/')){const relative=qaPath.slice(6);if(!/^(runner\.html|fixtures\/[a-zA-Z0-9_.-]+)$/.test(relative)){res.writeHead(404);res.end();return;}const local=resolve(import.meta.dirname,'test',relative);try{res.writeHead(200,{'Content-Type':mime[extname(local)]||'application/octet-stream'});createReadStream(local).pipe(res);}catch{res.writeHead(404);res.end();}return;}
+  if(qaPath.startsWith('/__qa/')){const relative=qaPath.slice(6);if(!/^([a-z-]+\.html|fixtures\/[a-zA-Z0-9_.-]+)$/.test(relative)){res.writeHead(404);res.end();return;}const local=resolve(import.meta.dirname,'test',relative);try{res.writeHead(200,{'Content-Type':mime[extname(local)]||'application/octet-stream'});createReadStream(local).pipe(res);}catch{res.writeHead(404);res.end();}return;}
   let file;try{file=resolve(root,'.'+decodeURIComponent(qaPath));}catch{res.writeHead(400);res.end();return;}
   if(!file.startsWith(root+sep)&&file!==root){res.writeHead(403);res.end();return;}
   try{if(statSync(file).isDirectory())file=resolve(file,'index.html');const info=statSync(file);res.writeHead(200,{'Content-Type':mime[extname(file)]||'application/octet-stream','Content-Length':info.size,'X-Content-Type-Options':'nosniff'});createReadStream(file).pipe(res);}catch{res.writeHead(404);res.end('Not found');}
