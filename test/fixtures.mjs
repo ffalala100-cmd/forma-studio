@@ -1,0 +1,15 @@
+import {createRequire} from 'node:module';
+import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
+import {deflateSync} from 'node:zlib';
+import path from 'node:path';
+const require=createRequire(import.meta.url),folder=path.join(import.meta.dirname,'fixtures');mkdirSync(folder,{recursive:true});
+const {jsPDF}=require('jspdf');const pdf=new jsPDF();pdf.text('Forma conversion verification',20,25);pdf.text('Editable source text. Page one.',20,40);pdf.addPage();pdf.text('Second page with another paragraph.',20,25);writeFileSync(path.join(folder,'sample.pdf'),Buffer.from(pdf.output('arraybuffer')));
+writeFileSync(path.join(folder,'notes.txt'),'用户体验改进计划\n背景与目标\n目标：让用户更快完成核心任务。\n关键发现\n用户反馈：操作路径不够清晰。\n改进思路\n减少步骤，优化信息层级，完善帮助内容。\n行动计划\n小范围试点，记录反馈，再逐步推广。');
+const {Document,Packer,Paragraph}=require('docx');writeFileSync(path.join(folder,'sample.docx'),await Packer.toBuffer(new Document({sections:[{children:[new Paragraph('格式工坊文档转换测试'),new Paragraph('这是一份中文文档。测试内容重新排版为 PDF。'),new Paragraph('Conversion should preserve readable text content.')]}]})));
+const crc32=(b)=>{let c=-1;for(const n of b){c^=n;for(let j=0;j<8;j++)c=(c>>>1)^((c&1)?0xedb88320:0);}return(c^-1)>>>0};
+function chunk(type,data){const t=Buffer.from(type),length=Buffer.alloc(4),crc=Buffer.alloc(4);length.writeUInt32BE(data.length);crc.writeUInt32BE(crc32(Buffer.concat([t,data])));return Buffer.concat([length,t,data,crc]);}
+const width=320,height=180,ihdr=Buffer.alloc(13);ihdr.writeUInt32BE(width);ihdr.writeUInt32BE(height,4);ihdr[8]=8;ihdr[9]=6;const pixels=Buffer.alloc((width*4+1)*height);for(let y=0;y<height;y++)for(let x=0;x<width;x++){const i=y*(width*4+1)+1+x*4;pixels[i]=25;pixels[i+1]=80+Math.round(x/3);pixels[i+2]=60+Math.round(y/2);pixels[i+3]=x<50?0:255;}
+writeFileSync(path.join(folder,'sample.png'),Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk('IHDR',ihdr),chunk('IDAT',deflateSync(pixels)),chunk('IEND',Buffer.alloc(0))]));
+const duration=1,rate=16000,count=rate*duration,wav=Buffer.alloc(44+count*2);wav.write('RIFF');wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(rate,24);wav.writeUInt32LE(rate*2,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(count*2,40);for(let i=0;i<count;i++)wav.writeInt16LE(Math.round(Math.sin(i*2*Math.PI*440/rate)*10000),44+i*2);writeFileSync(path.join(folder,'tone.wav'),wav);
+try{globalThis.self={location:{href:'http://localhost/ffmpeg-core.js'}};const createFFmpegCore=require('@ffmpeg/core');const core=await createFFmpegCore({wasmBinary:readFileSync(path.join(import.meta.dirname,'../node_modules/@ffmpeg/core/dist/umd/ffmpeg-core.wasm'))});core.setLogger(()=>{});core.exec('-f','lavfi','-i','color=c=green:s=160x90:r=10','-t','1','-c:v','libx264','-pix_fmt','yuv420p','-threads','1','sample.mp4');writeFileSync(path.join(folder,'sample.mp4'),core.FS.readFile('sample.mp4'));}catch(e){console.error('Video fixture:',e.message);process.exitCode=1;}
+console.log('Created PDF, DOCX, PNG, TXT, WAV and MP4 fixtures.');

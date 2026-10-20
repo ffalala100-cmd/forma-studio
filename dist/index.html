@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#174f3c"><meta name="description" content="格式工坊 Forma：在浏览器中转换文档、图片和视频，从文件或提示词生成可编辑 PPT。">
+  <title>格式工坊 Forma · 让文件自由流动</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23174f3c'/%3E%3Cpath d='M19 17h29v9H29v8h16v9H29v12H19z' fill='%23d6f89a'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="#home" aria-label="格式工坊首页"><span class="brand-mark">f<span>↗</span></span><span>Forma<span class="brand-sub">格式工坊</span></span></a>
+    <div class="workspace-pill"><span class="workspace-avatar">F</span><div>我的工作空间<small>个人工作台</small></div><i data-lucide="chevrons-up-down"></i></div>
+    <div class="nav-caption">工作空间</div>
+    <nav class="main-nav">
+      <button data-nav="home" class="active"><i data-lucide="layout-grid"></i>全部工具</button>
+      <button data-nav="document"><i data-lucide="files"></i>文档转换</button>
+      <button data-nav="image"><i data-lucide="image"></i>图片转换</button>
+      <button data-nav="video"><i data-lucide="clapperboard"></i>视频与音频</button>
+      <button data-nav="ppt"><i data-lucide="presentation"></i>PPT 创作<span class="tiny-badge">NEW</span></button>
+    </nav>
+    <div class="nav-caption secondary">我的文件</div>
+    <nav class="main-nav"><button data-nav="history"><i data-lucide="history"></i>最近任务<span id="taskCount" class="count">0</span></button><button data-nav="favorites"><i data-lucide="star"></i>收藏的工具</button></nav>
+    <div class="sidebar-bottom"><div class="privacy-card"><span class="privacy-icon"><i data-lucide="shield-check"></i></span><strong>你的文件，只属于你</strong><p>转换在浏览器本地完成<br>文件无需上传至服务器</p><button id="privacyInfo">了解工作原理 <span>↗</span></button></div><button class="profile" id="settingsBtn"><span class="profile-avatar">我</span><span>个人工作空间<small>转换工具 · 免费使用</small></span><i data-lucide="settings-2"></i></button></div>
+  </aside>
+  <div class="app-shell">
+    <header class="topbar"><div class="breadcrumbs"><button class="mobile-menu" aria-label="打开导航"><i data-lucide="menu"></i></button><span>工作空间</span><span class="slash">/</span><strong id="breadcrumb">全部工具</strong></div><div class="topbar-actions"><span class="local-badge"><span></span>本地处理，安心转换</span><button class="icon-btn" id="helpBtn" aria-label="帮助"><i data-lucide="circle-help"></i></button><span class="mini-avatar">F</span></div></header>
+    <main id="main" tabindex="-1"></main>
+    <footer><span>FORMA WORKSPACE</span><span>让灵感流动，让效率发生。<span class="footer-dot">·</span><button id="footerPrivacy">隐私与数据</button></span><span>用心处理每一份文件 <i data-lucide="arrow-up-right"></i></span></footer>
+  </div>
+  <input id="quickUpload" type="file" multiple hidden>
+  <dialog id="convertDialog" class="convert-dialog"><div id="convertContent"></div></dialog>
+  <dialog id="infoDialog" class="info-dialog"><div id="infoContent"></div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./vendor/lucide.js"></script><script type="module" src="./app.js"></script>
+</body>
+</html>

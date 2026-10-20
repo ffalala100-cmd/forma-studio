@@ -1,0 +1,8 @@
+node_modules/
+dist/vendor/
+dist/THIRD-PARTY-NOTICES.txt
+test/fixtures/
+.openai/
+.env
+.env.*
+*.log
